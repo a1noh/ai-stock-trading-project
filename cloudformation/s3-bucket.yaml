@@ -1,0 +1,7 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  StockDataBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: ai-stock-trading-bucket-<unique-id>
+      AccessControl: Private

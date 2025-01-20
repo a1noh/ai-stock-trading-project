@@ -1,15 +1,43 @@
-AWSTemplateFormatVersion: "2010-09-09"
-Description: IAM User for AI Stock Trading Agent
-
+AWSTemplateFormatVersion: '2010-09-09'
 Resources:
-  # IAM User
   AiStockTradingUser:
-    Type: "AWS::IAM::User"
+    Type: AWS::IAM::User
     Properties:
-      UserName: "ai-stock-trading-user"
-      Path: "/"
+      UserName: ai-stock-trading-user
+
+  AiStockTradingUserPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: AiStockTradingUserPolicy
+      Users:
+        - !Ref AiStockTradingUser
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              # S3 full access
+              - s3:*
+              # Lambda full access
+              - lambda:*
+              # Glue service role full access
+              - glue:*
+              # SageMaker full access
+              - sagemaker:*
+              # API Gateway full access
+              - apigateway:*
+              # Kinesis full access (optional)
+              - kinesis:*
+              # CloudWatch full access
+              - cloudwatch:*
+              # SNS full access
+              - sns:*
+            Resource: "*"
 
 Outputs:
-  AiStockTradingUser:
-    Value: !Ref "AiStockTradingUser"
-    Description: "IAM User for managing AI Stock Trading Agent"
+  User:
+    Value: !Ref AiStockTradingUser
+    Description: 'The AI Stock Trading User'
+  Policy:
+    Value: !Ref AiStockTradingUserPolicy
+    Description: 'Policy attached to the AI Stock Trading User'

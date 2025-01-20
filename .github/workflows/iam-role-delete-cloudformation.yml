@@ -1,4 +1,4 @@
-name: Delete CloudFormation Stacks
+name: Delete IAM Role CloudFormation Stack
 
 on:
   workflow_dispatch:  # Manually trigger the workflow
