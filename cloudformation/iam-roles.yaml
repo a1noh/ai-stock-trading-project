@@ -1,0 +1,161 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: AI Stock Trading Infrastructure (Including IAM Roles)
+
+Resources:
+  # IAM Role for Lambda (Data Collection)
+  AiStockTradingLambdaRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "lambda.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Path: "/"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  # IAM Role for SageMaker (Model Training and Prediction)
+  AiStockTradingSageMakerRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "sagemaker.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Path: "/"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonSageMakerFullAccess
+
+  # IAM Role for API Gateway (Trade Execution)
+  AiStockTradingApiGatewayRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "apigateway.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Path: "/"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonAPIGatewayInvokeFullAccess
+
+  # IAM Role for CloudWatch (Monitoring)
+  AiStockTradingCloudWatchRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "cloudwatch.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Path: "/"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/CloudWatchFullAccess
+
+  # IAM Role for CloudFormation Read-Only Access
+  AiStockTradingCloudFormationReadOnlyRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "cloudformation.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Path: "/"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/ReadOnlyAccess
+
+  # S3 Bucket for Stock Data
+  StockDataBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "ai-stock-trading-bucket-${AWS::AccountId}-${AWS::Region}"
+      AccessControl: Private
+      VersioningConfiguration:
+        Status: Enabled
+
+  # Lambda Function for Data Collection
+  AiStockTradingLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: AiStockTradingDataCollectionFunction
+      Handler: index.handler
+      Role: arn:aws:iam::${AWS::AccountId}:role/AiStockTradingLambdaRole
+      Code:
+        S3Bucket: !Ref StockDataBucket
+        S3Key: code/lambda.zip  # Adjust this to point to the correct S3 location for Lambda code
+      Runtime: nodejs14.x
+      Timeout: 300
+
+  # API Gateway for Trade Execution
+  AiStockTradingApiGateway:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: AiStockTradingApi
+      Description: API for executing trades
+
+  # SageMaker Endpoint for Model Inference
+  AiStockTradingSageMakerEndpoint:
+    Type: AWS::SageMaker::Endpoint
+    Properties:
+      EndpointName: AiStockTradingEndpoint
+      EndpointConfigName: !Ref AiStockTradingSageMakerEndpointConfig
+
+  # SageMaker Endpoint Config for Model Inference
+  AiStockTradingSageMakerEndpointConfig:
+    Type: AWS::SageMaker::EndpointConfig
+    Properties:
+      EndpointConfigName: AiStockTradingEndpointConfig
+      ProductionVariants:
+        - VariantName: AllTraffic
+          ModelName: !Ref AiStockTradingSageMakerModel
+          InitialInstanceCount: 1
+          InstanceType: ml.m5.large
+
+  # SageMaker Model for AI Trading
+  AiStockTradingSageMakerModel:
+    Type: AWS::SageMaker::Model
+    Properties:
+      ExecutionRoleArn: arn:aws:iam::${AWS::AccountId}:role/AiStockTradingSageMakerRole
+      PrimaryContainer:
+        Image: "123456789012.dkr.ecr.us-east-1.amazonaws.com/ai-stock-model:latest"
+        ModelDataUrl: "s3://ai-stock-trading-bucket/model/model.tar.gz"  # Update with actual S3 location
+
+  # CloudWatch Log Group for Monitoring
+  AiStockTradingCloudWatchLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: "/aws/lambda/AiStockTradingDataCollectionFunction"
+
+Outputs:
+  StockDataBucket:
+    Value: !Ref StockDataBucket
+    Description: "S3 Bucket for Stock Data"
+
+  AiStockTradingLambdaFunction:
+    Value: !GetAtt AiStockTradingLambdaFunction.Arn
+    Description: "Lambda Function for Data Collection"
+
+  AiStockTradingApiGateway:
+    Value: !Ref AiStockTradingApiGateway
+    Description: "API Gateway for Trade Execution"
+
+  AiStockTradingSageMakerEndpoint:
+    Value: !Ref AiStockTradingSageMakerEndpoint
+    Description: "SageMaker Endpoint for Model Inference"
+
+  AiStockTradingCloudWatchLogGroup:
+    Value: !Ref AiStockTradingCloudWatchLogGroup
+    Description: "CloudWatch Log Group for Lambda Function"
