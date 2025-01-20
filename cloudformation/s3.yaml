@@ -1,0 +1,36 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: S3 Buckets for AI Stock Trading
+
+Resources:
+  AiStockTradingS3RawBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: ai-stock-trading-raw-data
+      VersioningConfiguration:
+        Status: Enabled
+      Tags:
+        - Key: Environment
+          Value: Production
+        - Key: Purpose
+          Value: Raw Stock Data
+
+  AiStockTradingS3ProcessedBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: ai-stock-trading-processed-data
+      VersioningConfiguration:
+        Status: Enabled
+      Tags:
+        - Key: Environment
+          Value: Production
+        - Key: Purpose
+          Value: Processed Stock Data
+
+Outputs:
+  RawS3BucketName:
+    Description: Name of the S3 bucket for raw stock data
+    Value: !Ref AiStockTradingS3RawBucket
+
+  ProcessedS3BucketName:
+    Description: Name of the S3 bucket for processed stock data
+    Value: !Ref AiStockTradingS3ProcessedBucket

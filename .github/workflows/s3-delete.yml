@@ -1,5 +1,4 @@
-name: Delete Infrastructure for Stock Trading AI
-
+name: s3 Delete
 on:
   workflow_dispatch:
     # This allows the delete workflow to be manually triggered from the GitHub Actions UI
