@@ -19,18 +19,18 @@ Resources:
       VersioningConfiguration:
         Status: Enabled
 
-  # # Lambda Function for Data Collection
-  # AiStockTradingLambdaFunction:
-  #   Type: AWS::Lambda::Function
-  #   Properties:
-  #     FunctionName: AiStockTradingDataCollectionFunction
-  #     Handler: index.handler
-  #     Role: !Sub arn:aws:iam::${AWS::AccountId}:role/AiStockTradingLambdaRole
-  #     Code:
-  #       S3Bucket: !Ref StockDataBucketRaw
-  #       S3Key: code/lambda.zip
-  #     Runtime: nodejs14.x
-  #     Timeout: 300
+  # Lambda Function for Data Collection
+  AiStockTradingLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: AiStockTradingDataCollectionFunction
+      Handler: index.handler
+      Role: !Sub arn:aws:iam::${AWS::AccountId}:role/AiStockTradingLambdaRole
+      Code:
+        S3Bucket: !Ref StockDataBucketRaw
+        S3Key: code/lambda.zip
+      Runtime: nodejs14.x
+      Timeout: 300
 
   # # API Gateway for Trade Execution
   # AiStockTradingApiGateway:
@@ -119,9 +119,9 @@ Outputs:
     Value: !Ref StockDataBucketProcessed
     Description: "Processed S3 Bucket for Stock Data"
 
-  # AiStockTradingLambdaFunction:
-  #   Value: !GetAtt AiStockTradingLambdaFunction.Arn
-  #   Description: "Lambda Function for Data Collection"
+  AiStockTradingLambdaFunction:
+    Value: !GetAtt AiStockTradingLambdaFunction.Arn
+    Description: "Lambda Function for Data Collection"
 
   # AiStockTradingApiGateway:
   #   Value: !Ref AiStockTradingApiGateway
