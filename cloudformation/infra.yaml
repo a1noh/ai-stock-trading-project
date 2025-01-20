@@ -17,7 +17,7 @@ Resources:
     Properties:
       FunctionName: AiStockTradingDataCollectionFunction
       Handler: index.handler
-      Role: arn:aws:iam::${AWS::AccountId}:role/AiStockTradingLambdaRole
+      Role: !Sub arn:aws:iam::${AWS::AccountId}:role/AiStockTradingLambdaRole  # Correct ARN interpolation using !Sub
       Code:
         S3Bucket: !Ref StockDataBucket
         S3Key: code/lambda.zip  # Adjust this to point to the correct S3 location for Lambda code
@@ -53,7 +53,7 @@ Resources:
   AiStockTradingSageMakerModel:
     Type: AWS::SageMaker::Model
     Properties:
-      ExecutionRoleArn: arn:aws:iam::${AWS::AccountId}:role/AiStockTradingSageMakerRole
+      ExecutionRoleArn: !Sub arn:aws:iam::${AWS::AccountId}:role/AiStockTradingSageMakerRole  # Correct ARN interpolation using !Sub
       PrimaryContainer:
         Image: "123456789012.dkr.ecr.us-east-1.amazonaws.com/ai-stock-model:latest"
         ModelDataUrl: "s3://ai-stock-trading-bucket/model/model.tar.gz"  # Update with actual S3 location
@@ -70,7 +70,7 @@ Outputs:
     Description: "S3 Bucket for Stock Data"
 
   AiStockTradingLambdaFunction:
-    Value: !GetAtt AiStockTradingLambdaFunction.An
+    Value: !GetAtt AiStockTradingLambdaFunction.Arn  # Correct reference to Lambda ARN
     Description: "Lambda Function for Data Collection"
 
   AiStockTradingApiGateway:
@@ -84,4 +84,3 @@ Outputs:
   AiStockTradingCloudWatchLogGroup:
     Value: !Ref AiStockTradingCloudWatchLogGroup
     Description: "CloudWatch Log Group for Lambda Function"
-

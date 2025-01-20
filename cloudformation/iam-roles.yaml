@@ -66,34 +66,4 @@ Resources:
   AiStockTradingCloudFormationReadOnlyRole:
     Type: "AWS::IAM::Role"
     Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: "Allow"
-            Principal:
-              Service: "cloudformation.amazonaws.com"
-            Action: "sts:AssumeRole"
-      Path: "/"
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/ReadOnlyAccess
-
-Outputs:
-  AiStockTradingLambdaRole:
-    Value: !GetAtt "AiStockTradingLambdaRole.Arn"
-    Description: "IAM Role for Lambda (Data Collection)"
-
-  AiStockTradingSageMakerRole:
-    Value: !GetAtt "AiStockTradingSageMakerRole.Arn"
-    Description: "IAM Role for SageMaker (Model Training)"
-
-  AiStockTradingApiGatewayRole:
-    Value: !GetAtt "AiStockTradingApiGatewayRole.Arn"
-    Description: "IAM Role for API Gateway (Trade Execution)"
-
-  AiStockTradingCloudWatchRole:
-    Value: !GetAtt "AiStockTradingCloudWatchRole.Arn"
-    Description: "IAM Role for CloudWatch (Monitoring)"
-
-  AiStockTradingCloudFormationReadOnlyRole:
-    Value: !GetAtt "AiStockTradingCloudFormationReadOnlyRole.Arn"
-    Description: "IAM Role for CloudFormation Read-Only Access"
+      A
