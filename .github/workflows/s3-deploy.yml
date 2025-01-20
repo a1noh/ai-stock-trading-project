@@ -23,6 +23,6 @@ jobs:
           echo "Deploying CloudFormation stack for S3 buckets..."
           aws cloudformation deploy \
             --stack-name ai-stock-trading-s3-buckets \
-            --template-file s3-buckets.yaml \
+            --template-file cloudformation/s3-buckets.yaml \
             --capabilities CAPABILITY_NAMED_IAM
           echo "CloudFormation stack deployed successfully."
