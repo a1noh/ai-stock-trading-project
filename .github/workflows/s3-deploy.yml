@@ -1,41 +1,28 @@
-name: s3 Deploy
+name: Deploy S3 Buckets
+
 on:
-  workflow_dispatch:
+  workflow_dispatch: # Allows manual triggering
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout code from the repository
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-      # Set up AWS CLI
-      - name: Set up AWS CLI
+      - name: Set up AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      # Validate CloudFormation template (optional but recommended)
-      - name: Validate CloudFormation template
-        run: |
-          aws cloudformation validate-template --template-body file://cloudformation/infra.yaml
-
-      # Deploy CloudFormation Stack
       - name: Deploy CloudFormation Stack
         run: |
+          echo "Deploying CloudFormation stack for S3 buckets..."
           aws cloudformation deploy \
-            --template-file cloudformation/s3.yaml \
-            --stack-name ai-stock-trading-stack \
-            --capabilities CAPABILITY_NAMED_IAM \
-            --no-fail-on-empty-changeset
-
-      # Output the stack status (optional)
-      - name: Get Stack Status
-        run: |
-          aws cloudformation describe-stacks \
-            --stack-name ai-stock-trading-stack \
-            --query 'Stacks[0].StackStatus'
+            --stack-name ai-stock-trading-s3-buckets \
+            --template-file s3-buckets.yaml \
+            --capabilities CAPABILITY_NAMED_IAM
+          echo "CloudFormation stack deployed successfully."

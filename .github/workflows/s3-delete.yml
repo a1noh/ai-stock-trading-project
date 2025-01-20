@@ -1,8 +1,7 @@
-name: s3 Delete
+name: Delete S3 Buckets
+
 on:
-  workflow_dispatch:
-    # This allows the delete workflow to be manually triggered from the GitHub Actions UI
-    # You can also remove this section if you prefer automatic deletion or other triggers.
+  workflow_dispatch: # Allows manual triggering
 
 jobs:
   delete:
@@ -16,7 +15,28 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Delete CloudFormation stack
+      - name: Empty S3 Buckets
         run: |
-          aws cloudformation delete-stack --stack-name stock-trading-infrastructure-stack
-          aws cloudformation wait stack-delete-complete --stack-name stock-trading-infrastructure-stack
+          echo "Fetching bucket names from CloudFormation stack..."
+          
+          RAW_BUCKET_NAME=$(aws cloudformation describe-stack-resources \
+            --stack-name ai-stock-trading-s3-buckets \
+            --query "StackResources[?LogicalResourceId=='AiStockTradingS3RawBucket'].PhysicalResourceId" \
+            --output text)
+          
+          PROCESSED_BUCKET_NAME=$(aws cloudformation describe-stack-resources \
+            --stack-name ai-stock-trading-s3-buckets \
+            --query "StackResources[?LogicalResourceId=='AiStockTradingS3ProcessedBucket'].PhysicalResourceId" \
+            --output text)
+
+          echo "Emptying S3 buckets..."
+          aws s3 rm s3://$RAW_BUCKET_NAME --recursive
+          aws s3 rm s3://$PROCESSED_BUCKET_NAME --recursive
+          echo "S3 buckets emptied successfully."
+
+      - name: Delete CloudFormation Stack
+        run: |
+          echo "Deleting CloudFormation stack for S3 buckets..."
+          aws cloudformation delete-stack --stack-name ai-stock-trading-s3-buckets
+          aws cloudformation wait stack-delete-complete --stack-name ai-stock-trading-s3-buckets
+          echo "CloudFormation stack deleted successfully."
