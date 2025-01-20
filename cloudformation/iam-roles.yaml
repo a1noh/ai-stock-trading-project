@@ -66,4 +66,112 @@ Resources:
   AiStockTradingCloudFormationReadOnlyRole:
     Type: "AWS::IAM::Role"
     Properties:
-      A
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "cloudformation.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Path: "/"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/ReadOnlyAccess
+
+  # IAM Role for AWS Glue (ETL)
+  AiStockTradingGlueRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "glue.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Path: "/"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole
+
+  # IAM Role for Kinesis (Optional, for real-time data streaming)
+  AiStockTradingKinesisRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "kinesis.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Path: "/"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonKinesisFullAccess
+
+  # IAM Role for Lambda (EventBridge permissions)
+  AiStockTradingEventBridgeLambdaRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "lambda.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Path: "/"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/service-role/AmazonEventBridgeFullAccess
+
+  # IAM Role for API Gateway (Invoke External Broker APIs)
+  AiStockTradingApiGatewayExternalRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "apigateway.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Path: "/"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonAPIGatewayInvokeFullAccess
+        - arn:aws:iam::aws:policy/AmazonEC2FullAccess  # For invoking external APIs if necessary
+
+Outputs:
+  AiStockTradingLambdaRole:
+    Value: !GetAtt "AiStockTradingLambdaRole.Arn"
+    Description: "IAM Role for Lambda (Data Collection)"
+
+  AiStockTradingSageMakerRole:
+    Value: !GetAtt "AiStockTradingSageMakerRole.Arn"
+    Description: "IAM Role for SageMaker (Model Training)"
+
+  AiStockTradingApiGatewayRole:
+    Value: !GetAtt "AiStockTradingApiGatewayRole.Arn"
+    Description: "IAM Role for API Gateway (Trade Execution)"
+
+  AiStockTradingCloudWatchRole:
+    Value: !GetAtt "AiStockTradingCloudWatchRole.Arn"
+    Description: "IAM Role for CloudWatch (Monitoring)"
+
+  AiStockTradingCloudFormationReadOnlyRole:
+    Value: !GetAtt "AiStockTradingCloudFormationReadOnlyRole.Arn"
+    Description: "IAM Role for CloudFormation Read-Only Access"
+
+  AiStockTradingGlueRole:
+    Value: !GetAtt "AiStockTradingGlueRole.Arn"
+    Description: "IAM Role for AWS Glue (ETL)"
+
+  AiStockTradingKinesisRole:
+    Value: !GetAtt "AiStockTradingKinesisRole.Arn"
+    Description: "IAM Role for Kinesis (Optional, Real-Time Data Streaming)"
+
+  AiStockTradingEventBridgeLambdaRole:
+    Value: !GetAtt "AiStockTradingEventBridgeLambdaRole.Arn"
+    Description: "IAM Role for Lambda (EventBridge permissions)"
+
+  AiStockTradingApiGatewayExternalRole:
+    Value: !GetAtt "AiStockTradingApiGatewayExternalRole.Arn"
+    Description: "IAM Role for API Gateway (Invoke External Broker APIs)"
