@@ -1,9 +1,7 @@
 name: Delete CloudFormation Stacks
 
 on:
-  push:
-    branches:
-      - main  # Trigger deletion on changes to the 'main' branch
+  workflow_dispatch:  # Manually trigger the workflow
 
 jobs:
   delete:
