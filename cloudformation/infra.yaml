@@ -29,7 +29,7 @@ Resources:
       Code:
         S3Bucket: !Ref StockDataBucketRaw
         S3Key: code/lambda.zip
-      Runtime: nodejs14.x
+      Runtime: nodejs16.x
       Timeout: 300
 
   # # API Gateway for Trade Execution
