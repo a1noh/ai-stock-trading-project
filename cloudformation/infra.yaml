@@ -111,4 +111,51 @@ Resources:
     Type: AWS::SageMaker::Endpoint
     Properties:
       EndpointName: AiStockTradingEndpoint
-      EndpointConfigName: !Ref AiStockTradingSageMakerEn
+      EndpointConfigName: !Ref AiStockTradingSageMakerEndpointConfig
+
+  # SageMaker Endpoint Config for Model Inference
+  AiStockTradingSageMakerEndpointConfig:
+    Type: AWS::SageMaker::EndpointConfig
+    Properties:
+      EndpointConfigName: AiStockTradingEndpointConfig
+      ProductionVariants:
+        - VariantName: AllTraffic
+          ModelName: !Ref AiStockTradingSageMakerModel
+          InitialInstanceCount: 1
+          InstanceType: ml.m5.large
+
+  # SageMaker Model for AI Trading
+  AiStockTradingSageMakerModel:
+    Type: AWS::SageMaker::Model
+    Properties:
+      ExecutionRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/AiStockTradingSageMakerRole"
+      PrimaryContainer:
+        Image: "123456789012.dkr.ecr.us-east-1.amazonaws.com/ai-stock-model:latest"
+        ModelDataUrl: "s3://ai-stock-trading-bucket/model/model.tar.gz"  # Update with actual S3 location
+
+  # CloudWatch Log Group for Monitoring
+  AiStockTradingCloudWatchLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: "/aws/lambda/AiStockTradingDataCollectionFunction"
+
+Outputs:
+  StockDataBucket:
+    Value: !Ref StockDataBucket
+    Description: "S3 Bucket for Stock Data"
+
+  AiStockTradingLambdaFunction:
+    Value: !GetAtt AiStockTradingLambdaFunction.Arn
+    Description: "Lambda Function for Data Collection"
+
+  AiStockTradingApiGateway:
+    Value: !Ref AiStockTradingApiGateway
+    Description: "API Gateway for Trade Execution"
+
+  AiStockTradingSageMakerEndpoint:
+    Value: !Ref AiStockTradingSageMakerEndpoint
+    Description: "SageMaker Endpoint for Model Inference"
+
+  AiStockTradingCloudWatchLogGroup:
+    Value: !Ref AiStockTradingCloudWatchLogGroup
+    Description: "CloudWatch Log Group for Lambda Function"
