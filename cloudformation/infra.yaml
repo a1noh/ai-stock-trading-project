@@ -1,7 +1,110 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Resources:
+  # S3 Bucket for Stock Data
   StockDataBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: ai-stock-trading-bucket-<unique-id>
+      BucketName: ai-stock-trading-bucket-${AWS::AccountId}  # Make sure this name is globally unique
       AccessControl: Private
+
+  # IAM Role for Lambda Execution
+  StockTradingLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: stock-trading-lambda-policy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:*
+                  - logs:*
+                Resource: "*"
+
+  # IAM Role for SageMaker Execution
+  StockTradingSageMakerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: sagemaker.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: stock-trading-sagemaker-policy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:*
+                Resource: "*"
+
+  # IAM Role for Glue Execution
+  StockTradingGlueRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: glue.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: stock-trading-glue-policy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:*
+                  - glue:*
+                Resource: "*"
+
+  # CloudWatch Log Group for Lambda
+  StockTradingLambdaLogs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: "/aws/lambda/stock-trading-lambda"
+
+  # Lambda Function (example function for stock data processing)
+  StockTradingLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: stock-trading-lambda
+      Handler: index.handler
+      Role: !GetAtt StockTradingLambdaRole.Arn
+      Code:
+        S3Bucket: !Ref StockDataBucket
+        S3Key: lambda/code.zip  # Ensure the code is uploaded to this location
+      Runtime: nodejs14.x  # Example runtime, adjust based on your needs
+      MemorySize: 128
+      Timeout: 300
+
+Outputs:
+  LambdaRoleArn:
+    Description: "ARN of the Lambda execution role"
+    Value: !GetAtt StockTradingLambdaRole.Arn
+
+  SageMakerRoleArn:
+    Description: "ARN of the SageMaker execution role"
+    Value: !GetAtt StockTradingSageMakerRole.Arn
+
+  GlueRoleArn:
+    Description: "ARN of the Glue execution role"
+    Value: !GetAtt StockTradingGlueRole.Arn
+
+  S3BucketName:
+    Description: "Name of the S3 bucket"
+    Value: !Ref StockDataBucket
