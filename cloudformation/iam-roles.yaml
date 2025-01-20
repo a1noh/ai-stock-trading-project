@@ -121,7 +121,7 @@ Resources:
       Path: "/"
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-        - arn:aws:iam::aws:policy/service-role/AmazonEventBridgeFullAccess
+        - arn:aws:iam::aws:policy/AmazonEventBridgeFullAccess
 
   # IAM Role for API Gateway (Invoke External Broker APIs)
   AiStockTradingApiGatewayExternalRole:
