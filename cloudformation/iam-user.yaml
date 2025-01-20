@@ -1,0 +1,15 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: IAM User for AI Stock Trading Agent
+
+Resources:
+  # IAM User
+  AiStockTradingUser:
+    Type: "AWS::IAM::User"
+    Properties:
+      UserName: "ai-stock-trading-user"
+      Path: "/"
+
+Outputs:
+  AiStockTradingUser:
+    Value: !Ref "AiStockTradingUser"
+    Description: "IAM User for managing AI Stock Trading Agent"
