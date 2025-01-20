@@ -1,0 +1,23 @@
+name: Delete Infrastructure for Stock Trading AI
+
+on:
+  workflow_dispatch:
+    # This allows the delete workflow to be manually triggered from the GitHub Actions UI
+    # You can also remove this section if you prefer automatic deletion or other triggers.
+
+jobs:
+  delete:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Delete CloudFormation stack
+        run: |
+          aws cloudformation delete-stack --stack-name stock-trading-infrastructure-stack
+          aws cloudformation wait stack-delete-complete --stack-name stock-trading-infrastructure-stack
