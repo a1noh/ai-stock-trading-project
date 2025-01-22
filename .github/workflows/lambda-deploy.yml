@@ -1,0 +1,47 @@
+name: Deploy AiStockTradingLambda
+
+on:
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  deploy-lambda:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+    # Checkout the code from the repository
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    # Set up Python
+    - name: Set up Python 3.x
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    # Install dependencies (if needed, e.g., for Lambda packaging)
+    - name: Install dependencies
+      run: |
+        pip install -r lambda/requirements.txt
+
+    # Zip the Lambda function code
+    - name: Zip Lambda function code
+      run: |
+        python -m zipfile -c ai_stock_trading_lambda.zip lambda/process_raw/.
+
+    # Upload Lambda code to S3
+    - name: Upload Lambda code to S3
+      run: |
+        aws s3 cp ai_stock_trading_lambda.zip s3://ai-stock-trading-raw-data/code/
+
+    # Deploy CloudFormation Stack
+    - name: Deploy CloudFormation stack
+      run: |
+        aws cloudformation deploy \
+          --template-file cloudformation/lambda.yaml \
+          --stack-name ai-stock-trading-lambda-stack \
+          --parameter-overrides LambdaCodeBucket=ai-stock-trading-raw-data
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: us-east-1  # Adjust to your region
