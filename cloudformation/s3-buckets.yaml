@@ -8,6 +8,11 @@ Resources:
       BucketName: ai-stock-trading-raw-data
       VersioningConfiguration:
         Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
       Tags:
         - Key: Environment
           Value: Production
@@ -20,6 +25,11 @@ Resources:
       BucketName: ai-stock-trading-processed-data
       VersioningConfiguration:
         Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
       Tags:
         - Key: Environment
           Value: Production
