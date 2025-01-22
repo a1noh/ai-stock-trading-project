@@ -21,6 +21,16 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
 
+    # Check if the stack is in ROLLBACK_COMPLETE state and delete it
+    - name: Check Stack Status and Delete if ROLLBACK_COMPLETE
+      run: |
+        stack_status=$(aws cloudformation describe-stacks --stack-name ai-stock-trading-lambda-stack --query "Stacks[0].StackStatus" --output text)
+        if [ "$stack_status" == "ROLLBACK_COMPLETE" ]; then
+          echo "Stack is in ROLLBACK_COMPLETE state. Deleting stack..."
+          aws cloudformation delete-stack --stack-name ai-stock-trading-lambda-stack
+          aws cloudformation wait stack-delete-complete --stack-name ai-stock-trading-lambda-stack
+        fi
+
     # Set up Python
     - name: Set up Python 3.x
       uses: actions/setup-python@v2
