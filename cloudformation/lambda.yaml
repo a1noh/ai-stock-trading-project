@@ -13,7 +13,7 @@ Resources:
       FunctionName: AiStockTradingLambda
       Runtime: python3.9
       Role: arn:aws:iam::460888320683:role/ai-stock-trading-roles-AiStockTradingLambdaRole-34q5o8m2cFF7
-      Handler: lambda_function.lambda_handler
+      Handler: main.lambsda_handler
       Code:
         S3Bucket: !Ref LambdaCodeBucket
         S3Key: code/ai_stock_trading_lambda.zip
