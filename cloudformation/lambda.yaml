@@ -5,6 +5,9 @@ Parameters:
   LambdaCodeBucket:
     Type: String
     Description: The name of the S3 bucket containing the Lambda function code.
+  LambdaCodeKey:
+    Type: String
+    Description: The S3 key for the Lambda function code.
 
 Resources:
   AiStockTradingLambda:
@@ -16,7 +19,7 @@ Resources:
       Handler: main.lambda_handler
       Code:
         S3Bucket: !Ref LambdaCodeBucket
-        S3Key: code/ai_stock_trading_lambda.zip
+        S3Key: !Ref LambdaCodeKey
       Timeout: 30
       MemorySize: 128
       Environment:
