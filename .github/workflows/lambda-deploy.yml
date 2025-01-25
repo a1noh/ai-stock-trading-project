@@ -37,13 +37,13 @@ jobs:
       run: |
         python -m zipfile -c ai_stock_trading_lambda.zip lambda/process_raw/.
 
-    # Upload Lambda code to S3
+    # Upload Lambda code to S3 with a unique key (using timestamp)
     - name: Upload Lambda code to S3
       run: |
-        aws s3 cp ai_stock_trading_lambda.zip s3://ai-stock-trading-raw-data/code/
+        TIMESTAMP=$(date +%s)
+        aws s3 cp ai_stock_trading_lambda.zip s3://ai-stock-trading-raw-data/code/ai_stock_trading_lambda_$TIMESTAMP.zip
 
-
-     # Delete the ZIP file after upload
+    # Delete the ZIP file after upload
     - name: Delete ZIP file
       run: |
         rm ai_stock_trading_lambda.zip
@@ -54,6 +54,5 @@ jobs:
         aws cloudformation deploy \
           --template-file cloudformation/lambda.yaml \
           --stack-name ai-stock-trading-lambda-stack \
-          --parameter-overrides LambdaCodeBucket=ai-stock-trading-raw-data \
+          --parameter-overrides LambdaCodeBucket=ai-stock-trading-raw-data LambdaCodeKey=code/ai_stock_trading_lambda_$TIMESTAMP.zip \
           --no-fail-on-empty-changeset
-  
