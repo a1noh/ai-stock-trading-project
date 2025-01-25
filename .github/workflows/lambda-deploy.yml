@@ -27,20 +27,21 @@ jobs:
       with:
         python-version: '3.x'
 
-    # Install dependencies (if needed, e.g., for Lambda packaging)
+    # Install dependencies into the lambda/process_raw/ directory
     - name: Install dependencies
       run: |
-        pip install -r lambda/process_raw/requirements.txt
+        pip install -r lambda/process_raw/requirements.txt -t lambda/process_raw/
 
-    # Zip the Lambda function code
+    # Zip the Lambda function code and dependencies
     - name: Zip Lambda function code
       run: |
-        python -m zipfile -c ai_stock_trading_lambda.zip lambda/process_raw/.
+        cd lambda/process_raw/
+        zip -r ai_stock_trading_lambda.zip .
 
     # Upload Lambda code to S3 with the same key
     - name: Upload Lambda code to S3
       run: |
-        aws s3 cp ai_stock_trading_lambda.zip s3://ai-stock-trading-raw-data/code/ai_stock_trading_lambda.zip
+        aws s3 cp lambda/process_raw/ai_stock_trading_lambda.zip s3://ai-stock-trading-raw-data/code/ai_stock_trading_lambda.zip
 
     # Deploy CloudFormation Stack
     - name: Deploy CloudFormation stack
