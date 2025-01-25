@@ -1,58 +1,30 @@
-name: Deploy AiStockTradingLambda
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation template to deploy the AiStockTradingLambda.
 
-on:
-  workflow_dispatch: # Allows manual triggering
+Parameters:
+  LambdaCodeBucket:
+    Type: String
+    Description: The name of the S3 bucket containing the Lambda function code.
 
-jobs:
-  deploy-lambda:
-    runs-on: ubuntu-latest
-    environment: production
+Resources:
+  AiStockTradingLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: AiStockTradingLambda
+      Runtime: python3.9
+      Role: arn:aws:iam::460888320683:role/ai-stock-trading-roles-AiStockTradingLambdaRole-34q5o8m2cFF7
+      Handler: main.lambda_handler
+      Code:
+        S3Bucket: !Ref LambdaCodeBucket
+        S3Key: code/ai_stock_trading_lambda.zip
+      Timeout: 30
+      MemorySize: 128
+      Environment:
+        Variables:
+          LOG_LEVEL: INFO
+          ENVIRONMENT: dev
 
-    steps:
-
-    # Checkout the code from the repository
-    - name: Checkout repository
-      uses: actions/checkout@v2
-
-    - name: Set up AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1
-
-    # Set up Python
-    - name: Set up Python 3.x
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.x'
-
-    # Install dependencies (if needed, e.g., for Lambda packaging)
-    - name: Install dependencies
-      run: |
-        pip install -r lambda/process_raw/requirements.txt
-
-    # Zip the Lambda function code
-    - name: Zip Lambda function code
-      run: |
-        python -m zipfile -c ai_stock_trading_lambda.zip lambda/process_raw/.
-
-    # Upload Lambda code to S3 with a unique key
-    - name: Upload Lambda code to S3
-      run: |
-        TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S)_$(openssl rand -hex 4)
-        aws s3 cp ai_stock_trading_lambda.zip s3://ai-stock-trading-raw-data/code/ai_stock_trading_lambda_$TIMESTAMP.zip
-
-    # Delete the ZIP file after upload
-    - name: Delete ZIP file
-      run: |
-        rm ai_stock_trading_lambda.zip
-
-    # Deploy CloudFormation Stack
-    - name: Deploy CloudFormation stack
-      run: |
-        aws cloudformation deploy \
-          --template-file cloudformation/lambda.yaml \
-          --stack-name ai-stock-trading-lambda-stack \
-          --parameter-overrides LambdaCodeBucket=ai-stock-trading-raw-data LambdaCodeKey=code/ai_stock_trading_lambda_$TIMESTAMP.zip \
-          --no-fail-on-empty-changeset
+Outputs:
+  LambdaFunctionName:
+    Description: Lambda function name
+    Value: !Ref AiStockTradingLambda
