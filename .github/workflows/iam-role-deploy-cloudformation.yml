@@ -18,10 +18,9 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1  # Change to your AWS region
 
-    - name: Deploy IAM Roles Stack
+    - name: Deploy or Update IAM Roles Stack
       run: |
-        aws cloudformation create-stack \
+        aws cloudformation deploy \
           --stack-name ai-stock-trading-roles \
-          --template-body file://cloudformation/iam-roles.yaml \
+          --template-file cloudformation/iam-roles.yaml \
           --capabilities CAPABILITY_NAMED_IAM  # Needed if creating IAM resources
-
