@@ -16,6 +16,14 @@ Resources:
       Path: "/"
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: "S3PutObjectPolicy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action: "s3:PutObject"
+                Resource: "arn:aws:s3:::ai-stock-trading-raw-data/data/*"
 
   # IAM Role for SageMaker (Model Training and Prediction)
   AiStockTradingSageMakerRole:
