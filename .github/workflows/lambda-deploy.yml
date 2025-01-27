@@ -51,17 +51,18 @@ jobs:
         cd lambda/process_raw/
         zip -r ai_stock_trading_lambda.zip . -x "*.git*" -x "*.github*"  # Exclude unnecessary files
 
-    # Upload Lambda code to S3 with the same key
+    # Upload Lambda code to S3 with a unique key (using timestamp)
     - name: Upload Lambda code to S3
       run: |
-        aws s3 cp lambda/process_raw/ai_stock_trading_lambda.zip s3://ai-stock-trading-raw-data/code/ai_stock_trading_lambda.zip
+        TIMESTAMP=$(date +%s)
+        aws s3 cp lambda/process_raw/ai_stock_trading_lambda.zip s3://ai-stock-trading-raw-data/code/ai_stock_trading_lambda_$TIMESTAMP.zip
 
-    # Deploy CloudFormation Stack
+    # Deploy CloudFormation Stack with the new S3 key
     - name: Deploy CloudFormation stack
       run: |
         TIMESTAMP=$(date +%s)
         aws cloudformation deploy \
           --template-file cloudformation/lambda.yaml \
           --stack-name ai-stock-trading-lambda-stack \
-          --parameter-overrides LambdaCodeBucket=ai-stock-trading-raw-data LambdaCodeKey=code/ai_stock_trading_lambda.zip DeploymentTimestamp=$TIMESTAMP \
+          --parameter-overrides LambdaCodeBucket=ai-stock-trading-raw-data LambdaCodeKey=code/ai_stock_trading_lambda_$TIMESTAMP.zip DeploymentTimestamp=$TIMESTAMP \
           --no-fail-on-empty-changeset
