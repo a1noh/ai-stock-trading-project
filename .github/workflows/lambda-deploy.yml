@@ -22,21 +22,34 @@ jobs:
         aws-region: us-east-1
 
     # Set up Python
-    - name: Set up Python 3.x
+    - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.x'
+        python-version: '3.9'  # Specify the exact Python version
 
-    # Install dependencies into the lambda/process_raw/ directory
+    # Install system dependencies (e.g., cmake for pyarrow)
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake build-essential
+
+    # Clean up old dependencies
+    - name: Clean up old dependencies
+      run: |
+        cd lambda/process_raw/
+        rm -rf python/  # Remove existing dependencies if any
+
+    # Install Python dependencies
     - name: Install dependencies
       run: |
+        pip install --upgrade pip
         pip install -r lambda/process_raw/requirements.txt -t lambda/process_raw/
 
     # Zip the Lambda function code and dependencies
     - name: Zip Lambda function code
       run: |
         cd lambda/process_raw/
-        zip -r ai_stock_trading_lambda.zip .
+        zip -r ai_stock_trading_lambda.zip . -x "*.git*" -x "*.github*"  # Exclude unnecessary files
 
     # Upload Lambda code to S3 with the same key
     - name: Upload Lambda code to S3
