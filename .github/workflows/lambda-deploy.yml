@@ -56,17 +56,7 @@ jobs:
       run: |
         aws s3 cp lambda/process_raw/ai_stock_trading_lambda.zip s3://ai-stock-trading-raw-data/code/ai_stock_trading_lambda.zip
 
-    # Check if stack exists and delete it if it does
-    - name: Delete existing CloudFormation stack if it exists
-      run: |
-        STACK_NAME="ai-stock-trading-lambda-stack"
-        aws cloudformation describe-stacks --stack-name $STACK_NAME || true  # Ignore if the stack does not exist
-        if [ $? -eq 0 ]; then
-          aws cloudformation delete-stack --stack-name $STACK_NAME
-          echo "Stack $STACK_NAME deleted."
-        else
-          echo "Stack $STACK_NAME does not exist, skipping deletion."
-        fi
+
 
     # Deploy CloudFormation Stack with a new timestamp to force update
     - name: Deploy CloudFormation stack
