@@ -8,29 +8,28 @@ from datetime import datetime
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-# Initialize Secrets Manager client
-secrets_manager_client = boto3.client('secretsmanager')
+# Initialize the Secrets Manager client
+secrets_client = boto3.client('secretsmanager')
 
-def get_secret_value(secret_name):
+def get_secret():
+    secret_name = "AlphaVantageAPIKey"  # The secret name from Secrets Manager
+    region_name = "us-east-1"  # Adjust region if necessary
+
     try:
-        # Retrieve secret value from Secrets Manager
-        response = secrets_manager_client.get_secret_value(SecretId=secret_name)
-        # If the secret is a string
-        if 'SecretString' in response:
-            secret = response['SecretString']
-            return json.loads(secret)
-        else:
-            # If the secret is binary (not recommended for API keys)
-            return None
-    except ClientError as e:
-        logger.error(f"Unable to retrieve secret: {e}")
-        raise e
+        # Fetch the secret value from Secrets Manager
+        response = secrets_client.get_secret_value(SecretId=secret_name)
+        secret = response['SecretString']
+        secret_dict = json.loads(secret)
+        return secret_dict["ALPHA_VANTAGE_API_KEY"]
+    except Exception as e:
+        logger.error(f"Error retrieving secret: {e}")
+        raise
 
 def lambda_handler(event, context):
     logger.info("Lambda function started.")
 
     # API details
-    api_key = "HMEL7GGNZDPTXC1U"  # Replace with your Alpha Vantage API key
+    api_key =  get_secret()  # Replace with your Alpha Vantage API key
     symbol = "IBM"  # Replace with your desired stock symbol
     url = f"https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol={symbol}&interval=1min&apikey={api_key}"
 
