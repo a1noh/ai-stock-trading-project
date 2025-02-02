@@ -40,6 +40,15 @@ Resources:
                   - "secretsmanager:GetSecretValue"
                 Resource:
                   - !Ref AlphaVantageAPIKeySecret
+        - PolicyName: LambdaS3PutObjectPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                Resource:
+                  - arn:aws:s3:::ai-stock-trading-raw-data/data/*
 
   AiStockTradingLambda:
     Type: AWS::Lambda::Function
