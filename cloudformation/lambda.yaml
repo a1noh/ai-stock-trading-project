@@ -19,12 +19,34 @@ Resources:
       Name: "AlphaVantageAPIKey"
       SecretString: '{"ALPHA_VANTAGE_API_KEY": "HMEL7GGNZDPTXC1U"}'
 
+  AiStockTradingLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: AiStockTradingLambdaRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "lambda.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: AiStockTradingLambdaExecutionPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "secretsmanager:GetSecretValue"
+                Resource:
+                  - !Ref AlphaVantageAPIKeySecret
+
   AiStockTradingLambda:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: AiStockTradingLambda
       Runtime: python3.9
-      Role: arn:aws:iam::460888320683:role/ai-stock-trading-roles-AiStockTradingLambdaRole-vucD1NO1QfFX
+      Role: !GetAtt AiStockTradingLambdaRole.Arn
       Handler: main.lambda_handler
       Code:
         S3Bucket: !Ref LambdaCodeBucket
