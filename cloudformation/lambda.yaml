@@ -1,26 +1,18 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation template to deploy the AiStockTradingLambda.
+
+Parameters:
+  LambdaCodeBucket:
+    Type: String
+    Description: The name of the S3 bucket containing the Lambda function code.
+  LambdaCodeKey:
+    Type: String
+    Description: The S3 key for the Lambda function code.
+  DeploymentTimestamp:
+    Type: String
+    Description: A dummy parameter to force updates.
+
 Resources:
-  # Create the secret in Secrets Manager
-  AlphaVantageAPIKeySecret:
-    Type: AWS::SecretsManager::Secret
-    Properties:
-      Name: "AlphaVantageAPIKey"
-      SecretString: '{"ALPHA_VANTAGE_API_KEY": "HMEL7GGNZDPTXC1U"}'
-
-  # IAM policy allowing Lambda to read secrets
-  AiStockTradingLambdaRolePolicy:
-    Type: AWS::IAM::Policy
-    Properties:
-      PolicyName: LambdaSecretsManagerAccessPolicy
-      Roles:
-        - !Ref AiStockTradingLambdaRole
-      PolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Action:
-              - secretsmanager:GetSecretValue
-            Resource: arn:aws:secretsmanager:REGION:ACCOUNT_ID:secret:AlphaVantageAPIKey-*
-
   AiStockTradingLambda:
     Type: AWS::Lambda::Function
     Properties:
@@ -37,7 +29,6 @@ Resources:
         Variables:
           LOG_LEVEL: INFO
           ENVIRONMENT: dev
-          ALPHA_VANTAGE_API_KEY: !Ref AlphaVantageAPIKeySecret
 
 Outputs:
   LambdaFunctionName:
