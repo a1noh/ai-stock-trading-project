@@ -59,12 +59,20 @@ jobs:
     # Delete CloudFormation Stack if it exists in FAILED/ROLLBACK state
     - name: Delete CloudFormation stack if it exists in FAILED/ROLLBACK state
       run: |
-        STACK_STATUS=$(aws cloudformation describe-stacks --stack-name ai-stock-trading-lambda-stack --query "Stacks[0].StackStatus" --output text)
-        if [[ "$STACK_STATUS" == "ROLLBACK_COMPLETE" || "$STACK_STATUS" == "CREATE_FAILED" ]]; then
-          echo "Stack in failed state ($STACK_STATUS), deleting..."
-          aws cloudformation delete-stack --stack-name ai-stock-trading-lambda-stack
+        # Check if the stack exists
+        STACK_EXISTS=$(aws cloudformation describe-stacks --stack-name ai-stock-trading-lambda-stack --query "Stacks[0].StackName" --output text || echo "Stack does not exist")
+        
+        if [[ "$STACK_EXISTS" == "Stack does not exist" ]]; then
+          echo "Stack does not exist, skipping deletion."
         else
-          echo "Stack not in a failed state ($STACK_STATUS), no deletion needed."
+          # Check stack status
+          STACK_STATUS=$(aws cloudformation describe-stacks --stack-name ai-stock-trading-lambda-stack --query "Stacks[0].StackStatus" --output text)
+          if [[ "$STACK_STATUS" == "ROLLBACK_COMPLETE" || "$STACK_STATUS" == "CREATE_FAILED" ]]; then
+            echo "Stack in failed state ($STACK_STATUS), deleting..."
+            aws cloudformation delete-stack --stack-name ai-stock-trading-lambda-stack
+          else
+            echo "Stack not in a failed state ($STACK_STATUS), no deletion needed."
+          fi
         fi
 
     # Deploy CloudFormation Stack with a new timestamp to force update
