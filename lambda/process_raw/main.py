@@ -8,6 +8,24 @@ from datetime import datetime
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+# Initialize Secrets Manager client
+secrets_manager_client = boto3.client('secretsmanager')
+
+def get_secret_value(secret_name):
+    try:
+        # Retrieve secret value from Secrets Manager
+        response = secrets_manager_client.get_secret_value(SecretId=secret_name)
+        # If the secret is a string
+        if 'SecretString' in response:
+            secret = response['SecretString']
+            return json.loads(secret)
+        else:
+            # If the secret is binary (not recommended for API keys)
+            return None
+    except ClientError as e:
+        logger.error(f"Unable to retrieve secret: {e}")
+        raise e
+
 def lambda_handler(event, context):
     logger.info("Lambda function started.")
 
