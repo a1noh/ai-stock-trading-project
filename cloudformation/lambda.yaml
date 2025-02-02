@@ -13,6 +13,13 @@ Parameters:
     Description: A dummy parameter to force updates.
 
 Resources:
+# Create the secret in Secrets Manager
+  AlphaVantageAPIKeySecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: "AlphaVantageAPIKey"
+      SecretString: '{"ALPHA_VANTAGE_API_KEY": "HMEL7GGNZDPTXC1U"}'
+
   AiStockTradingLambda:
     Type: AWS::Lambda::Function
     Properties:
@@ -29,6 +36,7 @@ Resources:
         Variables:
           LOG_LEVEL: INFO
           ENVIRONMENT: dev
+          ALPHA_VANTAGE_API_KEY_SECRET: !Ref AlphaVantageAPIKeySecret
 
 Outputs:
   LambdaFunctionName:
