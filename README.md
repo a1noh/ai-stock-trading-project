@@ -140,17 +140,3 @@ The goal of this project is to create an AI agent that can buy and sell stocks b
 - **Amazon Kinesis (1 shard, 10GB of data/day)**: ~$15.00
 
 **Total Estimated Monthly Cost**: ~$19.74
-
----
-
-## 📝 Next Steps
-
-1. **Data Collection**: Set up Lambda functions and EventBridge to fetch stock market data at defined intervals.
-2. **ETL**: Configure AWS Glue to transform the raw data into usable features for training.
-3. **Model Training**: Set up Amazon SageMaker to train the reinforcement learning model.
-4. **Prediction & Execution**: Implement trade execution logic using Amazon API Gateway.
-5. **Monitoring & Alerts**: Set up CloudWatch and SNS for system monitoring and alerts.
-
----
-
-This documentation can be referred to for setting up and scaling your AI stock trading system. Feel free to ask for additional details on any part of the project.
