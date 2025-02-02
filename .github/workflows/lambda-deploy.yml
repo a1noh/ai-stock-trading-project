@@ -56,7 +56,16 @@ jobs:
       run: |
         aws s3 cp lambda/process_raw/ai_stock_trading_lambda.zip s3://ai-stock-trading-raw-data/code/ai_stock_trading_lambda.zip
 
-
+    # Delete CloudFormation Stack if it exists in FAILED/ROLLBACK state
+    - name: Delete CloudFormation stack if it exists in FAILED/ROLLBACK state
+      run: |
+        STACK_STATUS=$(aws cloudformation describe-stacks --stack-name ai-stock-trading-lambda-stack --query "Stacks[0].StackStatus" --output text)
+        if [[ "$STACK_STATUS" == "ROLLBACK_COMPLETE" || "$STACK_STATUS" == "CREATE_FAILED" ]]; then
+          echo "Stack in failed state ($STACK_STATUS), deleting..."
+          aws cloudformation delete-stack --stack-name ai-stock-trading-lambda-stack
+        else
+          echo "Stack not in a failed state ($STACK_STATUS), no deletion needed."
+        fi
 
     # Deploy CloudFormation Stack with a new timestamp to force update
     - name: Deploy CloudFormation stack
