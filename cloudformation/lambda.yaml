@@ -40,8 +40,7 @@ Resources:
     Type: AWS::IAM::Policy
     Properties:
       PolicyName: AiStockTradingLambdaSecretAccessPolicy
-      Roles: 
-        - arn:aws:iam::460888320683:role/ai-stock-trading-roles-AiStockTradingLambdaRole-vucD1NO1QfFX
+      Role: arn:aws:iam::460888320683:role/ai-stock-trading-roles-AiStockTradingLambdaRole-vucD1NO1QfFX
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
