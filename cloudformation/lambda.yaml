@@ -63,7 +63,7 @@ Resources:
     Properties:
       PolicyName: AiStockTradingLambdaSecretAccessPolicy
       Roles: 
-        - arn:aws:iam::460888320683:role/ai-stock-trading-roles-AiStockTradingLambdaRole-vucD1NO1QfFX
+        - !Ref AiStockTradingLambdaRole
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
