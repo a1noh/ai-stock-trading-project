@@ -13,7 +13,6 @@ Parameters:
     Description: A dummy parameter to force updates.
 
 Resources:
-# Create the secret in Secrets Manager
   AlphaVantageAPIKeySecret:
     Type: AWS::SecretsManager::Secret
     Properties:
@@ -37,7 +36,6 @@ Resources:
           LOG_LEVEL: INFO
           ENVIRONMENT: dev
           ALPHA_VANTAGE_API_KEY_SECRET: !Ref AlphaVantageAPIKeySecret
-  # IAM Role Policy to allow Lambda access to Secrets Manager
   AiStockTradingLambdaPolicy:
     Type: AWS::IAM::Policy
     Properties:
