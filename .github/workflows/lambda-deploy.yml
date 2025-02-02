@@ -68,7 +68,6 @@ jobs:
           # Check stack status
           STACK_STATUS=$(aws cloudformation describe-stacks --stack-name ai-stock-trading-lambda-stack --query "Stacks[0].StackStatus" --output text)
           if [[ "$STACK_STATUS" =~ (DELETE|FAILED|ROLLBACK) ]]; then
-            .
             echo "Stack in a failed state ($STACK_STATUS), deleting..."
             aws cloudformation delete-stack --stack-name ai-stock-trading-lambda-stack
 
@@ -76,7 +75,6 @@ jobs:
             echo "Waiting for stack deletion to complete..."
             aws cloudformation wait stack-delete-complete --stack-name ai-stock-trading-lambda-stack
             echo "Stack deleted. Proceeding with deployment."  
-            .
           else
             echo "Stack not in a failed state ($STACK_STATUS), no deletion needed."
           fi
