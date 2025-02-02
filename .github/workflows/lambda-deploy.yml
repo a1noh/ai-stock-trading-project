@@ -75,16 +75,6 @@ jobs:
           fi
         fi
 
-    - name: Wait for CloudFormation stack to finish deletion
-      run: |
-        STACK_STATUS=$(aws cloudformation describe-stacks --stack-name ai-stock-trading-lambda-stack --query "Stacks[0].StackStatus" --output text)
-        while [[ "$STACK_STATUS" == "DELETE_IN_PROGRESS" ]]; do
-          echo "Stack is in DELETE_IN_PROGRESS state. Waiting for completion..."
-          sleep 30  # Wait for 30 seconds before checking again
-          STACK_STATUS=$(aws cloudformation describe-stacks --stack-name ai-stock-trading-lambda-stack --query "Stacks[0].StackStatus" --output text)
-        done
-        echo "Stack deletion completed or doesn't exist. Proceeding with deployment."
-
     # Deploy CloudFormation Stack with a new timestamp to force update
     - name: Deploy CloudFormation stack
       run: |
