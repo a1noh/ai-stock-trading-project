@@ -64,4 +64,5 @@ jobs:
           --template-file cloudformation/lambda.yaml \
           --stack-name ai-stock-trading-lambda-stack \
           --parameter-overrides LambdaCodeBucket=ai-stock-trading-raw-data LambdaCodeKey=code/ai_stock_trading_lambda.zip DeploymentTimestamp=$TIMESTAMP \
+          --capabilities CAPABILITY_IAM \
           --no-fail-on-empty-changeset
