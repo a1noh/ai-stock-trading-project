@@ -1,0 +1,105 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation template to create an AWS Glue job for AI stock trading data processing.
+
+Parameters:
+  DeploymentTimestamp:
+    Type: String
+    Description: A dummy parameter to force updates.
+
+Resources:
+  # IAM Role for AWS Glue Job
+  AiStockTradingGlueRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: AiStockTradingGlueRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "glue.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: GlueS3AccessPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              # Read access to raw data bucket
+              - Effect: "Allow"
+                Action:
+                  - "s3:GetObject"
+                  - "s3:ListBucket"
+                Resource:
+                  - "arn:aws:s3:::ai-stock-trading-raw-data"
+                  - "arn:aws:s3:::ai-stock-trading-raw-data/data/*"
+
+              # Write access to processed data bucket
+              - Effect: "Allow"
+                Action:
+                  - "s3:PutObject"
+                Resource:
+                  - "arn:aws:s3:::ai-stock-trading-processed-data/data/*"
+
+              # Read/Write access to Glue job scripts in processed data bucket
+              - Effect: "Allow"
+                Action:
+                  - "s3:GetObject"
+                  - "s3:PutObject"
+                  - "s3:ListBucket"
+                Resource:
+                  - "arn:aws:s3:::ai-stock-trading-processed-data/code/*"
+
+        - PolicyName: GlueBasicExecutionPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "glue:CreateJob"
+                  - "glue:StartJobRun"
+                  - "glue:GetJobRun"
+                  - "glue:GetJobRuns"
+                  - "glue:BatchStopJobRun"
+                Resource: "*"
+
+        - PolicyName: GlueLoggingPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource: "*"
+
+  # AWS Glue Job
+  AiStockTradingGlueJob:
+    Type: AWS::Glue::Job
+    Properties:
+      Name: AiStockTradingGlueJob
+      Role: !GetAtt AiStockTradingGlueRole.Arn
+      Command:
+        Name: glueetl
+        ScriptLocation: "s3://ai-stock-trading-processed-data/code/glue_script.py"
+        PythonVersion: "3"
+      DefaultArguments:
+        "--TempDir": "s3://ai-stock-trading-processed-data/tmp/"
+        "--enable-metrics": "true"
+        "--job-bookmark-option": "job-bookmark-enable"
+      ExecutionProperty:
+        MaxConcurrentRuns: 1
+      MaxRetries: 2
+      Timeout: 30
+      GlueVersion: "3.0"
+      NumberOfWorkers: 5
+      WorkerType: G.1X
+
+Outputs:
+  GlueJobName:
+    Description: Name of the AWS Glue job
+    Value: !Ref AiStockTradingGlueJob
+
+  GlueRoleArn:
+    Description: ARN of the IAM role for Glue
+    Value: !GetAtt AiStockTradingGlueRole.Arn

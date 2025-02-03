@@ -1,0 +1,5 @@
+boto3==1.26.29
+pandas==1.5.2
+pyarrow==10.0.1
+awsglue==1.0.0
+pyspark==3.3.1
