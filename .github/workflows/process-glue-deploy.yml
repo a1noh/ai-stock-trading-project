@@ -55,7 +55,7 @@ jobs:
         run: |
           TIMESTAMP=$(date +%s)
           aws cloudformation deploy \
-            --template-file cloudformation/glue-job.yaml \
+            --template-file cloudformation/process-glue.yaml \
             --stack-name ai-stock-trading-glue-job-stack \
             --parameter-overrides GlueCodeBucket=ai-stock-trading-raw-data GlueCodeKey=code/glue_job_code.zip DeploymentTimestamp=$TIMESTAMP \
             --capabilities CAPABILITY_NAMED_IAM \
